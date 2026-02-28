@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Smart Crop Yield Predictor - Gujarat</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+body{
+    font-family: Arial;
+    background: linear-gradient(to right,#1e3c72,#2a5298);
+    color:white;
+    text-align:center;
+}
+.container{
+    width:95%;
+    margin:auto;
+    padding:15px;
+}
+input,select{
+    width:90%;
+    padding:8px;
+    margin:6px;
+    border-radius:5px;
+    border:none;
+}
+button{
+    padding:10px 20px;
+    background:#27ae60;
+    color:white;
+    border:none;
+    border-radius:5px;
+    cursor:pointer;
+}
+.output{
+    margin-top:20px;
+    background:#16a085;
+    padding:15px;
+    border-radius:10px;
+}
+canvas{
+    background:white;
+    border-radius:10px;
+    margin-top:15px;
+}
+</style>
+</head>
+
+<body>
+
+<h2>🌾 Smart Crop Yield Predictor - Gujarat</h2>
+
+<div class="container">
+
+<h3>📍 Select Location (All Over Gujarat)</h3>
+<select id="region" onchange="autoFillRegion()">
+<option value="">Select Gujarat Region</option>
+<option value="south">South Gujarat</option>
+<option value="north">North Gujarat</option>
+<option value="saurashtra">Saurashtra</option>
+<option value="kutch">Kutch</option>
+<option value="central">Central Gujarat</option>
+</select>
+
+<select id="crop">
+<option value="">Select Crop</option>
+<option value="wheat">Wheat</option>
+<option value="rice">Rice</option>
+<option value="groundnut">Groundnut</option>
+<option value="cotton">Cotton</option>
+<option value="banana">Banana</option>
+<option value="cumin">Cumin</option>
+<option value="tur">Tur (Arhar)</option>
+<option value="bajra">Bajra</option>
+</select>
+
+<input type="number" id="area" placeholder="Farm Area (hectares)">
+<input type="number" id="ph" placeholder="Soil pH">
+
+<select id="soil">
+<option value="">Soil Type</option>
+<option value="Loamy">Loamy</option>
+<option value="Clay">Clay</option>
+<option value="Sandy">Sandy</option>
+</select>
+
+<input type="number" id="rainfall" placeholder="Rainfall (mm/year)">
+<input type="number" id="temp" placeholder="Temperature (°C)">
+<input type="number" id="humidity" placeholder="Humidity (%)">
+
+<select id="fertilizer">
+<option value="">Fertilizer Type</option>
+<option value="Organic">Organic</option>
+<option value="NPK">NPK</option>
+<option value="Urea">Urea</option>
+</select>
+
+<input type="number" id="fertQty" placeholder="Fertilizer Quantity (kg/hectare)">
+
+<select id="irrigation">
+<option value="">Irrigation Type</option>
+<option value="Drip">Drip</option>
+<option value="Sprinkler">Sprinkler</option>
+<option value="Flood">Flood</option>
+</select>
+
+<input type="number" id="marketDistance" placeholder="Market Distance (km)">
+<input type="number" id="seedQuality" placeholder="Seed Quality (1-5)">
+
+<button onclick="predict()">Predict</button>
+
+<div class="output" id="result" style="display:none;">
+<h3>📊 OUTPUT</h3>
+<p id="yield"></p>
+<p id="profit"></p>
+<p id="altCrop"></p>
+<p id="success"></p>
+<p id="marketDemand"></p>
+<p id="risk"></p>
+<p id="sustain"></p>
+<p id="health"></p>
+<canvas id="yieldChart"></canvas>
+</div>
+
+</div>
+
+<script>
+
+let chartInstance = null;
+
+function autoFillRegion(){
+let region=document.getElementById("region").value;
+
+if(region=="south"){
+rainfall.value=1500; temp.value=30; soil.value="Loamy";
+}
+if(region=="north"){
+rainfall.value=600; temp.value=38; soil.value="Sandy";
+}
+if(region=="saurashtra"){
+rainfall.value=750; temp.value=34; soil.value="Clay";
+}
+if(region=="kutch"){
+rainfall.value=400; temp.value=42; soil.value="Sandy";
+}
+if(region=="central"){
+rainfall.value=900; temp.value=32; soil.value="Loamy";
+}
+}
+
+function suggestCrop(rainfall){
+if(rainfall>1200) return "Rice, Sugarcane, Banana";
+if(rainfall>700) return "Cotton, Groundnut, Maize";
+return "Bajra, Cumin, Castor";
+}
+
+function marketDemand(crop){
+if(crop=="rice"||crop=="wheat") return "📈 High Market Demand";
+if(crop=="groundnut"||crop=="cotton") return "📊 Medium Market Demand";
+return "📉 Low Market Demand";
+}
+
+function cropHealth(crop){
+if(crop=="wheat") return "Good for heart & diabetes.";
+if(crop=="rice") return "Easy digestion & stomach relief.";
+if(crop=="groundnut") return "High protein & muscle building.";
+if(crop=="banana") return "Helpful for BP & digestion.";
+if(crop=="cumin") return "Improves immunity.";
+return "General crop benefit.";
+}
+
+function predict(){
+
+let area=parseFloat(document.getElementById("area").value)||0;
+let rainfall=parseFloat(document.getElementById("rainfall").value)||0;
+let ph=parseFloat(document.getElementById("ph").value)||0;
+let seed=parseFloat(document.getElementById("seedQuality").value)||0;
+let market=parseFloat(document.getElementById("marketDistance").value)||0;
+let crop=document.getElementById("crop").value;
+
+let baseYield=(rainfall*0.02)+(seed*2);
+let totalYield=baseYield*area;
+let profit=(totalYield*2200)-(market*60);
+let success=(ph>=6 && ph<=7.5)?85:65;
+
+let risk="Normal";
+if(ph<5.5) risk="Low pH Risk";
+if(rainfall<500) risk="Drought Risk";
+
+let sustain=0;
+if(fertilizer.value=="Organic") sustain+=40;
+if(ph>=6 && ph<=7.5) sustain+=30;
+if(rainfall>700) sustain+=30;
+
+yield.innerHTML="🌾 Predicted Yield: "+totalYield.toFixed(2)+" quintals";
+profit.innerHTML="💰 Estimated Profit: ₹ "+profit.toFixed(2);
+altCrop.innerHTML="🔄 Alternative Crop Suggestion: "+suggestCrop(rainfall);
+success.innerHTML="📈 Success Probability: "+success+"%";
+marketDemand.innerHTML=marketDemand(crop);
+risk.innerHTML="⚠ Risk Alert: "+risk;
+sustain.innerHTML="🌍 Sustainability Score: "+sustain+"/100";
+health.innerHTML="🏥 Crop Health Benefit: "+cropHealth(crop);
+
+document.getElementById("result").style.display="block";
+
+if(chartInstance) chartInstance.destroy();
+
+chartInstance=new Chart(document.getElementById("yieldChart"),{
+type:"bar",
+data:{
+labels:["Yield","Profit"],
+datasets:[{
+label:"Analysis",
+data:[totalYield,profit]
+}]
+}
+});
+
+}
+
+</script>
+
+</body>
+</html>
